@@ -13,8 +13,8 @@
 #include "Materials/Material.h"
 #include "Engine/World.h"
 
-#include "Core/Actor/UIBaseActor.h"
 #include "ARPGPlayerController.h"
+#include "ARPG.h"
 
 AARPGCharacter::AARPGCharacter()
 {
@@ -67,8 +67,8 @@ void AARPGCharacter::Tick(float DeltaSeconds)
 
 	if (CursorToWorld != nullptr)
 	{		
-		TArray<AActor*> Actors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AUIBaseActor::StaticClass(), Actors);
+		/*TArray<AActor*> Actors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AUIBaseActor::StaticClass(), Actors);*/
 		if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled())
 		{
 			if (UWorld* World = GetWorld())
@@ -78,7 +78,7 @@ void AARPGCharacter::Tick(float DeltaSeconds)
 				FVector StartLocation = TopDownCameraComponent->GetComponentLocation();
 				FVector EndLocation = TopDownCameraComponent->GetComponentRotation().Vector() * 2000.0f;
 				Params.AddIgnoredActor(this);
-				Params.AddIgnoredActors(Actors);
+				//Params.AddIgnoredActors(Actors);
 				World->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
 				FQuat SurfaceRotation = HitResult.ImpactNormal.ToOrientationRotator().Quaternion();
 				CursorToWorld->SetWorldLocationAndRotation(HitResult.Location, SurfaceRotation);
@@ -88,12 +88,14 @@ void AARPGCharacter::Tick(float DeltaSeconds)
 		{
 			FHitResult TraceHitResult;			
 			FCollisionQueryParams Params(NAME_None, FCollisionQueryParams::GetUnknownStatId());
-			Params.AddIgnoredActor(this);
-			Params.AddIgnoredActors(Actors);
+			//Params.AddIgnoredActor(this);
+			//Params.AddIgnoredActors(Actors);
 			PC->GetHitResultUnderCursorByParam(ECC_Visibility, true, TraceHitResult, Params);
 
 			FVector CursorFV = TraceHitResult.ImpactNormal;
 			FRotator CursorR = CursorFV.Rotation();
+			UE_LOG(LogARPG, Display, TEXT("Position:Vector(%f,%f,%f)"), CursorFV.X, CursorFV.Y, CursorFV.Z);
+			UE_LOG(LogARPG, Display, TEXT("Rotate(%f,%f,%f)"), CursorR.Vector().X, CursorR.Vector().Y, CursorR.Vector().Z);
 			CursorToWorld->SetWorldLocation(TraceHitResult.Location);
 			CursorToWorld->SetWorldRotation(CursorR);
 		}
