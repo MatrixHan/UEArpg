@@ -1,0 +1,4 @@
+## Ignore UE4 files and VS / XCode solutions and projects
+
+/Binaries/
+/Intermediate/

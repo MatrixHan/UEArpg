@@ -1,0 +1,71 @@
+﻿// Copyright 2019-2022 LexLiu. All Rights Reserved.
+#include "LGUIRenderMeshVertexShader.usf"
+
+#if LGUI_RECT_CLIP
+float4 _RectClipOffsetAndSize;
+float4 _RectClipFeather;
+float RectClip(float3 pos, float2 offset, float2 size, float2 feather)
+{
+    return (1.0f - saturate((abs(pos.y - offset.x) - size.x) / feather.x)) * (1.0f - saturate((abs(pos.z - offset.y) - size.y) / feather.y));
+}
+#endif
+#if LGUI_TEXTURE_CLIP
+float4 _TextureClipOffsetAndSize;
+Texture2D _ClipTex;
+SamplerState _ClipTexSampler;
+float TextureClip(float3 pos, float2 offset, float2 size)
+{
+    float2 uv = (pos.yz - offset) / size;
+    uv.y = 1.0 - uv.y;
+    return _ClipTex.Sample(_ClipTexSampler, uv).r;
+}
+#endif
+#if LGUI_BLEND_DEPTH
+Texture2D _SceneDepthTex;
+SamplerState _SceneDepthTexSampler;
+float4 _SceneDepthTextureScaleOffset;
+float _SceneDepthBlend;
+#if LGUI_DEPTH_FADE
+float _SceneDepthFade;
+#endif
+#endif
+
+Texture2D _MainTex;
+SamplerState _MainTexSampler;
+
+#if LGUI_MASK
+Texture2D _MaskTex;
+SamplerState _MaskTexSampler;
+#endif
+
+void RenderMeshPS(
+    RenderMeshVSToPS input,
+    out float4 OutColor : SV_Target0
+)
+{
+    OutColor = _MainTex.Sample(_MainTexSampler, input.uv);
+    OutColor.a = 1.0;
+#if LGUI_MASK
+    OutColor.a *= _MaskTex.Sample(_MaskTexSampler, input.uvMask).r;
+#endif
+#if LGUI_RECT_CLIP
+    OutColor.a *= RectClip(input.localPosition, _RectClipOffsetAndSize.xy, _RectClipOffsetAndSize.zw, _RectClipFeather.xy);
+#endif
+#if LGUI_TEXTURE_CLIP
+    OutColor.a *= TextureClip(input.localPosition, _TextureClipOffsetAndSize.xy, _TextureClipOffsetAndSize.zw);
+#endif
+#if LGUI_BLEND_DEPTH
+    float PixelDepth = input.screenPosition.z / input.screenPosition.w;
+	float2 ScreenUV = input.screenPosition.xy / input.screenPosition.w;
+	ScreenUV = ScreenUV * 0.5f + float2(0.5f, 0.5f);
+	ScreenUV.y = 1.0f - ScreenUV.y;
+    float ExistDepth = _SceneDepthTex.Sample(_SceneDepthTexSampler, ScreenUV * _SceneDepthTextureScaleOffset.xy + _SceneDepthTextureScaleOffset.zw).x;
+#if LGUI_DEPTH_FADE
+	float DepthFadeValue = smoothstep(0, 1, saturate((PixelDepth - ExistDepth) / (_SceneDepthFade * ExistDepth * ExistDepth)));//if without the "ExistDepth * ExistDepth" then the fade distance will be affect by camera distance.
+#else
+	float DepthFadeValue = step(ExistDepth, PixelDepth);
+#endif
+	OutColor.a = lerp(_SceneDepthBlend * OutColor.a, OutColor.a, DepthFadeValue);
+#endif
+}
+
