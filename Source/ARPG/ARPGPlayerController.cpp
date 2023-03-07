@@ -26,6 +26,7 @@ void AARPGPlayerController::PlayerTick(float DeltaTime)
 
 void AARPGPlayerController::SetupInputComponent()
 {
+	blood_num = 1.0f;
 	// set up gameplay key bindings
 	Super::SetupInputComponent();
 
@@ -37,6 +38,14 @@ void AARPGPlayerController::SetupInputComponent()
 	InputComponent->BindTouch(EInputEvent::IE_Repeat, this, &AARPGPlayerController::MoveToTouchLocation);
 
 	InputComponent->BindAction("ResetVR", IE_Pressed, this, &AARPGPlayerController::OnResetVR);
+
+
+	InputComponent->BindAction("FAction",IE_Pressed,this,&AARPGPlayerController::OnFPressed);
+	InputComponent->BindAction("FAction", IE_Pressed, this, &AARPGPlayerController::OnFReleased);
+
+	InputComponent->BindAction("DAction", IE_Pressed, this, &AARPGPlayerController::OnDPressed);
+	InputComponent->BindAction("DAction", IE_Pressed, this, &AARPGPlayerController::OnDReleased);
+
 }
 
 void AARPGPlayerController::OnResetVR()
@@ -109,6 +118,40 @@ void AARPGPlayerController::OnSetDestinationReleased()
 {
 	// clear flag to indicate we should stop updating the destination
 	bMoveToMouseCursor = false;
+}
+
+void AARPGPlayerController::OnFPressed()
+{
+	if (AARPGCharacter* MyPawn = Cast<AARPGCharacter>(GetPawn()))
+	{
+		if (MyPawn)
+		{
+			blood_num -= 0.1f;
+			blood_num = FMath::Clamp(blood_num, 0.0f, 1.0f);
+			MyPawn->UpdateBlood(blood_num);
+		}
+	}
+}
+
+void AARPGPlayerController::OnFReleased()
+{
+}
+
+void AARPGPlayerController::OnDPressed()
+{
+	if (AARPGCharacter* MyPawn = Cast<AARPGCharacter>(GetPawn()))
+	{
+		if (MyPawn)
+		{
+			blood_num += 0.1f;
+			blood_num = FMath::Clamp(blood_num,0.0f,1.0f);
+			MyPawn->UpdateBlood(blood_num);
+		}
+	}
+}
+
+void AARPGPlayerController::OnDReleased()
+{
 }
 
 bool AARPGPlayerController::GetHitResultUnderCursorByParam(ECollisionChannel TraceChannel, bool bTraceComplex, FHitResult& HitResult, FCollisionQueryParams& Params) const

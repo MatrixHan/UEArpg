@@ -12,12 +12,17 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "Components/WidgetComponent.h"
+#include "Blueprint/UserWidget.h"
 
 #include "ARPGPlayerController.h"
 #include "ARPG.h"
 
+#pragma optimize( "", off) 
+
 AARPGCharacter::AARPGCharacter()
 {
+	
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -94,10 +99,66 @@ void AARPGCharacter::Tick(float DeltaSeconds)
 
 			FVector CursorFV = TraceHitResult.ImpactNormal;
 			FRotator CursorR = CursorFV.Rotation();
-			UE_LOG(LogARPG, Display, TEXT("Position:Vector(%f,%f,%f)"), CursorFV.X, CursorFV.Y, CursorFV.Z);
-			UE_LOG(LogARPG, Display, TEXT("Rotate(%f,%f,%f)"), CursorR.Vector().X, CursorR.Vector().Y, CursorR.Vector().Z);
+			//UE_LOG(LogARPG, Display, TEXT("Position:Vector(%f,%f,%f)"), CursorFV.X, CursorFV.Y, CursorFV.Z);
+			//UE_LOG(LogARPG, Display, TEXT("Rotate(%f,%f,%f)"), CursorR.Vector().X, CursorR.Vector().Y, CursorR.Vector().Z);
 			CursorToWorld->SetWorldLocation(TraceHitResult.Location);
 			CursorToWorld->SetWorldRotation(CursorR);
 		}
 	}
 }
+
+void AARPGCharacter::BeginPlay()
+{
+	UWorld* uWord = GetWorld();
+	Super::BeginPlay();
+	if (HUDAsset)
+	{
+		HUD = CreateWidget<UUserWidget>(uWord, HUDAsset);
+		if (HUD)
+		{
+			HUD->AddToViewport();
+		}
+	}	
+	if (!Custom3DUI) 
+	{
+		TArray<AActor*> actors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), actors);
+		for (int32 a = 0; a < actors.Num(); a++)
+		{
+			AActor* actor = actors[a];
+			if (actor->Tags.Num()>0 && actor->Tags.Contains(TEXT("3DUI")))
+			{
+				Custom3DUI = actor;
+			}
+		}
+		if (Custom3DUI) 
+		{
+			FProperty * healthNum = FindFProperty<FProperty>(Custom3DUI->GetClass(), "Health");
+			if (healthNum && healthNum->IsA(FFloatProperty::StaticClass()))
+			{
+				FFloatProperty* FloatProperty = CastField<FFloatProperty>(healthNum);
+				float Value = FloatProperty->GetPropertyValue_InContainer(Custom3DUI);
+				UE_LOG(LogARPG, Display, TEXT("Bload(%f)"), Value);
+				FloatProperty->SetPropertyValue_InContainer(Custom3DUI, 1.0f);
+			}			
+		}
+	}
+}
+
+
+void AARPGCharacter::UpdateBlood(float value)
+{
+	if (Custom3DUI) 
+	{
+		FProperty* healthNum = FindFProperty<FProperty>(Custom3DUI->GetClass(), "Health");
+		if (healthNum && healthNum->IsA(FFloatProperty::StaticClass()))
+		{
+			FFloatProperty* FloatProperty = CastField<FFloatProperty>(healthNum);
+			float Value = FloatProperty->GetPropertyValue_InContainer(Custom3DUI);
+			UE_LOG(LogARPG, Display, TEXT("Bload(%f)"), Value);
+			FloatProperty->SetPropertyValue_InContainer(Custom3DUI, value);
+		}
+	}
+}
+
+#pragma optimize( "", on) 

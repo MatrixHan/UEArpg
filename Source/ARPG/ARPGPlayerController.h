@@ -18,6 +18,8 @@ protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
 
+	float blood_num;
+
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
@@ -38,6 +40,12 @@ protected:
 	/** Input handlers for SetDestination action. */
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
+
+
+	void OnFPressed();
+	void OnFReleased();
+	void OnDPressed();
+	void OnDReleased();
 public:
 	bool GetHitResultUnderCursorByParam(ECollisionChannel TraceChannel, bool bTraceComplex, FHitResult& HitResult, FCollisionQueryParams& Params) const ;
 };
