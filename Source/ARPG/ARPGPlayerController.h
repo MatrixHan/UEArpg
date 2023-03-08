@@ -19,6 +19,7 @@ protected:
 	uint32 bMoveToMouseCursor : 1;
 
 	float blood_num;
+	float mana_num;
 
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;

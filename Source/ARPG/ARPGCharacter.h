@@ -34,6 +34,7 @@ public:
 
 public:
 	void UpdateBlood(float value);
+	void UpdateManaNum(float value);
 private:
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))

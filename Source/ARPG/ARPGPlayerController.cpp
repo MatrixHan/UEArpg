@@ -27,6 +27,7 @@ void AARPGPlayerController::PlayerTick(float DeltaTime)
 void AARPGPlayerController::SetupInputComponent()
 {
 	blood_num = 1.0f;
+	mana_num = 1.0f;
 	// set up gameplay key bindings
 	Super::SetupInputComponent();
 
@@ -128,7 +129,10 @@ void AARPGPlayerController::OnFPressed()
 		{
 			blood_num -= 0.1f;
 			blood_num = FMath::Clamp(blood_num, 0.0f, 1.0f);
+			mana_num -= 0.1f;
+			mana_num = FMath::Clamp(mana_num, 0.0f, 1.0f);
 			MyPawn->UpdateBlood(blood_num);
+			MyPawn->UpdateManaNum(mana_num);
 		}
 	}
 }
@@ -145,7 +149,10 @@ void AARPGPlayerController::OnDPressed()
 		{
 			blood_num += 0.1f;
 			blood_num = FMath::Clamp(blood_num,0.0f,1.0f);
+			mana_num += 0.1f;
+			mana_num = FMath::Clamp(mana_num, 0.0f, 1.0f);
 			MyPawn->UpdateBlood(blood_num);
+			MyPawn->UpdateManaNum(mana_num);
 		}
 	}
 }

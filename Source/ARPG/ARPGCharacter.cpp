@@ -117,6 +117,7 @@ void AARPGCharacter::BeginPlay()
 		static FVector OffsetAxisXVector(-65536.0f,0,0);
 
 		Custom3DUI = uWord->SpawnActor<AActor>(UIMesh3DUI, OffsetAxisXVector, FRotator::ZeroRotator, Params);
+		//Custom3DUI = uWord->SpawnActor<AActor>(UIMesh3DUI, this->GetActorLocation(), FRotator::ZeroRotator, Params);
 	}
 	if (HUDAsset)
 	{
@@ -136,7 +137,15 @@ void AARPGCharacter::BeginPlay()
 			float Value = FloatProperty->GetPropertyValue_InContainer(Custom3DUI);
 			UE_LOG(LogARPG, Display, TEXT("Bload(%f)"), Value);
 			FloatProperty->SetPropertyValue_InContainer(Custom3DUI, 1.0f);
-		}			
+		}	
+		FProperty* manaNum = FindFProperty<FProperty>(Custom3DUI->GetClass(), "ManaLiang");
+		if (manaNum && manaNum->IsA(FFloatProperty::StaticClass()))
+		{
+			FFloatProperty* FloatProperty = CastField<FFloatProperty>(manaNum);
+			float Value = FloatProperty->GetPropertyValue_InContainer(Custom3DUI);
+			UE_LOG(LogARPG, Display, TEXT("Mana(%f)"), Value);
+			FloatProperty->SetPropertyValue_InContainer(Custom3DUI, 1.0f);
+		}
 	}	
 }
 
@@ -151,6 +160,21 @@ void AARPGCharacter::UpdateBlood(float value)
 			FFloatProperty* FloatProperty = CastField<FFloatProperty>(healthNum);
 			float Value = FloatProperty->GetPropertyValue_InContainer(Custom3DUI);
 			UE_LOG(LogARPG, Display, TEXT("Bload(%f)"), Value);
+			FloatProperty->SetPropertyValue_InContainer(Custom3DUI, value);
+		}
+	}
+}
+
+void AARPGCharacter::UpdateManaNum(float value)
+{
+	if (Custom3DUI)
+	{
+		FProperty* manaNum = FindFProperty<FProperty>(Custom3DUI->GetClass(), "ManaLiang");
+		if (manaNum && manaNum->IsA(FFloatProperty::StaticClass()))
+		{
+			FFloatProperty* FloatProperty = CastField<FFloatProperty>(manaNum);
+			float Value = FloatProperty->GetPropertyValue_InContainer(Custom3DUI);
+			UE_LOG(LogARPG, Display, TEXT("Mana(%f)"), Value);
 			FloatProperty->SetPropertyValue_InContainer(Custom3DUI, value);
 		}
 	}
