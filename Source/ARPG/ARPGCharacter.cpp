@@ -19,7 +19,6 @@
 #include "ARPG.h"
 
 #pragma optimize( "", off) 
-
 AARPGCharacter::AARPGCharacter()
 {
 	
@@ -111,6 +110,14 @@ void AARPGCharacter::BeginPlay()
 {
 	UWorld* uWord = GetWorld();
 	Super::BeginPlay();
+	if (UIMesh3DUI) 
+	{
+		FActorSpawnParameters Params;
+		Params.Owner = this;
+		static FVector OffsetAxisXVector(-65536.0f,0,0);
+
+		Custom3DUI = uWord->SpawnActor<AActor>(UIMesh3DUI, OffsetAxisXVector, FRotator::ZeroRotator, Params);
+	}
 	if (HUDAsset)
 	{
 		HUD = CreateWidget<UUserWidget>(uWord, HUDAsset);
@@ -118,31 +125,19 @@ void AARPGCharacter::BeginPlay()
 		{
 			HUD->AddToViewport();
 		}
-	}	
-	if (!Custom3DUI) 
-	{
-		TArray<AActor*> actors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), actors);
-		for (int32 a = 0; a < actors.Num(); a++)
-		{
-			AActor* actor = actors[a];
-			if (actor->Tags.Num()>0 && actor->Tags.Contains(TEXT("3DUI")))
-			{
-				Custom3DUI = actor;
-			}
-		}
-		if (Custom3DUI) 
-		{
-			FProperty * healthNum = FindFProperty<FProperty>(Custom3DUI->GetClass(), "Health");
-			if (healthNum && healthNum->IsA(FFloatProperty::StaticClass()))
-			{
-				FFloatProperty* FloatProperty = CastField<FFloatProperty>(healthNum);
-				float Value = FloatProperty->GetPropertyValue_InContainer(Custom3DUI);
-				UE_LOG(LogARPG, Display, TEXT("Bload(%f)"), Value);
-				FloatProperty->SetPropertyValue_InContainer(Custom3DUI, 1.0f);
-			}			
-		}
 	}
+
+	if (Custom3DUI) 
+	{
+		FProperty * healthNum = FindFProperty<FProperty>(Custom3DUI->GetClass(), "Health");
+		if (healthNum && healthNum->IsA(FFloatProperty::StaticClass()))
+		{
+			FFloatProperty* FloatProperty = CastField<FFloatProperty>(healthNum);
+			float Value = FloatProperty->GetPropertyValue_InContainer(Custom3DUI);
+			UE_LOG(LogARPG, Display, TEXT("Bload(%f)"), Value);
+			FloatProperty->SetPropertyValue_InContainer(Custom3DUI, 1.0f);
+		}			
+	}	
 }
 
 

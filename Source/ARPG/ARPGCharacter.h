@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
 	TSubclassOf<UUserWidget> HUDAsset;//ÓÃ»§¿Ø¼þ	
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "3DUI")
+	TSubclassOf<AActor> UIMesh3DUI;
+
 public:
 	void UpdateBlood(float value);
 private:
