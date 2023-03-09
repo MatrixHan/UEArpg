@@ -47,6 +47,8 @@ protected:
 	void OnFReleased();
 	void OnDPressed();
 	void OnDReleased();
+	void OnRPressed();
+	void OnRReleased();
 public:
 	bool GetHitResultUnderCursorByParam(ECollisionChannel TraceChannel, bool bTraceComplex, FHitResult& HitResult, FCollisionQueryParams& Params) const ;
 };

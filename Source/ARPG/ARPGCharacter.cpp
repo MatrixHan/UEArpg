@@ -104,10 +104,12 @@ void AARPGCharacter::Tick(float DeltaSeconds)
 			CursorToWorld->SetWorldRotation(CursorR);
 		}
 	}
+	CheckHealth();
 }
 
 void AARPGCharacter::BeginPlay()
 {
+	isDead = false;
 	UWorld* uWord = GetWorld();
 	Super::BeginPlay();
 	if (UIMesh3DUI) 
@@ -176,6 +178,117 @@ void AARPGCharacter::UpdateManaNum(float value)
 			float Value = FloatProperty->GetPropertyValue_InContainer(Custom3DUI);
 			UE_LOG(LogARPG, Display, TEXT("Mana(%f)"), Value);
 			FloatProperty->SetPropertyValue_InContainer(Custom3DUI, value);
+		}
+	}
+}
+
+
+
+float AARPGCharacter::GetPropertyValue(FString ValueName,bool& isSuccess)
+{
+	return GetPropertyFloatValue(Custom3DUI,ValueName,isSuccess);
+}
+
+void AARPGCharacter::SwitchDeadState(bool pIsDead)
+{
+	USkeletalMeshComponent* TmpMesh = this->FindComponentByClass<USkeletalMeshComponent>();
+	if (TmpMesh)
+	{
+		UAnimInstance* AnimInstance = TmpMesh->GetAnimInstance();
+		bool isGetProperty = false;
+		bool v = GetPropertyBoolValue(AnimInstance,"IsDead",isGetProperty);
+		if (isGetProperty) 
+		{
+			SetPropertyBoolValue(AnimInstance, "IsDead", pIsDead);
+		}
+	}
+}
+
+void AARPGCharacter::Relive(float& bloodNum, float& manaNum)
+{
+	if (isDead)
+	{
+		isDead = !isDead;
+		bloodNum = 1.0f;
+		manaNum = 1.0f;
+		UpdateBlood(bloodNum);
+		UpdateManaNum(manaNum);
+		SwitchDeadState(isDead);
+	}
+}
+
+float AARPGCharacter::GetPropertyFloatValue(UObject* target, FString ValueName, bool& IsSuccess)
+{
+	float ret = 0.0f;
+	if (target)
+	{
+		FProperty* manaNum = FindFProperty<FProperty>(target->GetClass(), *ValueName);
+		if (manaNum && manaNum->IsA(FFloatProperty::StaticClass()))
+		{
+			FFloatProperty* FloatProperty = CastField<FFloatProperty>(manaNum);
+			ret = FloatProperty->GetPropertyValue_InContainer(target);
+			IsSuccess = true;
+		}
+	}
+	return ret;
+}
+
+bool AARPGCharacter::GetPropertyBoolValue(UObject* target, FString ValueName, bool& IsSuccess)
+{
+	bool ret = false;
+	if (target)
+	{
+		FProperty* manaNum = FindFProperty<FProperty>(target->GetClass(), *ValueName);
+		if (manaNum && manaNum->IsA(FBoolProperty::StaticClass()))
+		{
+			FBoolProperty* FloatProperty = CastField<FBoolProperty>(manaNum);
+			ret = FloatProperty->GetPropertyValue_InContainer(target);
+			IsSuccess = true;
+		}
+	}
+	return ret;
+}
+
+bool AARPGCharacter::SetPropertyFloatValue(UObject* target, FString ValueName, float value)
+{
+	if (target)
+	{
+		FProperty* manaNum = FindFProperty<FProperty>(target->GetClass(), *ValueName);
+		if (manaNum && manaNum->IsA(FFloatProperty::StaticClass()))
+		{
+			FFloatProperty* FloatProperty = CastField<FFloatProperty>(manaNum);
+			FloatProperty->SetPropertyValue_InContainer(target,value);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool AARPGCharacter::SetPropertyBoolValue(UObject* target, FString ValueName, bool value)
+{
+	if (target)
+	{
+		FProperty* manaNum = FindFProperty<FProperty>(target->GetClass(), *ValueName);
+		if (manaNum && manaNum->IsA(FBoolProperty::StaticClass()))
+		{
+			FBoolProperty* FloatProperty = CastField<FBoolProperty>(manaNum);
+			FloatProperty->SetPropertyValue_InContainer(target, value);
+			return true;
+		}
+	}
+	return false;
+}
+
+void AARPGCharacter::CheckHealth()
+{
+	bool isSuccess = false;
+	float health = GetPropertyValue("Health",isSuccess);
+	if (isSuccess) 
+	{
+		if (!isDead && health <= 0.0f) 
+		{
+			isDead = !isDead;
+			SwitchDeadState(isDead);
 		}
 	}
 }

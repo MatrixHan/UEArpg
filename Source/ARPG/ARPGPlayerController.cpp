@@ -47,6 +47,9 @@ void AARPGPlayerController::SetupInputComponent()
 	InputComponent->BindAction("DAction", IE_Pressed, this, &AARPGPlayerController::OnDPressed);
 	InputComponent->BindAction("DAction", IE_Pressed, this, &AARPGPlayerController::OnDReleased);
 
+	InputComponent->BindAction("Relive", IE_Pressed, this, &AARPGPlayerController::OnRPressed);
+	InputComponent->BindAction("Relive", IE_Pressed, this, &AARPGPlayerController::OnRReleased);
+
 }
 
 void AARPGPlayerController::OnResetVR()
@@ -159,6 +162,21 @@ void AARPGPlayerController::OnDPressed()
 
 void AARPGPlayerController::OnDReleased()
 {
+}
+
+void AARPGPlayerController::OnRPressed()
+{
+}
+
+void AARPGPlayerController::OnRReleased()
+{
+	if (AARPGCharacter* MyPawn = Cast<AARPGCharacter>(GetPawn()))
+	{
+		if (MyPawn)
+		{
+			MyPawn->Relive(blood_num, mana_num);
+		}
+	}
 }
 
 bool AARPGPlayerController::GetHitResultUnderCursorByParam(ECollisionChannel TraceChannel, bool bTraceComplex, FHitResult& HitResult, FCollisionQueryParams& Params) const

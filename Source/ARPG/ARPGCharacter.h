@@ -31,10 +31,20 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "3DUI")
 	TSubclassOf<AActor> UIMesh3DUI;
+private:
+	bool isDead;
 
-public:
+public:	
+	float GetPropertyValue(FString ValueName,bool &IsSuccess);
+	float GetPropertyFloatValue(UObject* target ,FString ValueName, bool& IsSuccess);
+	bool GetPropertyBoolValue(UObject* target, FString ValueName, bool& IsSuccess);
+	bool SetPropertyFloatValue(UObject* target, FString ValueName, float value);
+	bool SetPropertyBoolValue(UObject* target, FString ValueName, bool value);
 	void UpdateBlood(float value);
 	void UpdateManaNum(float value);
+	void CheckHealth();
+	void SwitchDeadState(bool pIsDead);
+	void Relive(float& bloodNum,float& manaNum);
 private:
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
