@@ -18,7 +18,24 @@ public class ST_SparseGridEditor : ModuleRules
         PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private/Mode"));
         PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private/Slate"));
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "UnrealEd", "ST_SparseGrid" });
-        PrivateDependencyModuleNames.AddRange(new string[] { "InputCore", "Slate", "SlateCore", "PropertyEditor", "LevelEditor", "EditorStyle", "Projects", "RHI", "RenderCore", "KismetWidgets" });
+        PublicDependencyModuleNames.AddRange(new string[] { 
+            "Core",
+            "CoreUObject", 
+            "Engine",
+            "UnrealEd",
+            "ST_SparseGrid" 
+        });
+        PrivateDependencyModuleNames.AddRange(new string[] {
+            "InputCore",
+            "Slate",
+            "SlateCore",
+            "PropertyEditor", 
+            "LevelEditor",
+            "EditorStyle",
+            "Projects",
+            "RHI",
+            "RenderCore",
+            "KismetWidgets" 
+        });
     }
 }

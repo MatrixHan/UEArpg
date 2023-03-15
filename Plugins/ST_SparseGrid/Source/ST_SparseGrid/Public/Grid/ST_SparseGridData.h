@@ -16,6 +16,7 @@ enum class EST_SGVisualizerType : uint8
 {
 	DDT_FlatGrid			UMETA(DisplayName = "Flat Grid"),
 	DDT_BoxGrid				UMETA(DisplayName = "Box Grid"),
+	DDT_FlatGridSprite		UMETA(DisplayName = "Flat Grid Sprite"),
 };
 #endif
 
@@ -41,6 +42,7 @@ public:
 	FORCEINLINE float GetDrawAltitude() const { return DrawAltitude; }
 	FORCEINLINE float GetBoxExtent() const { return BoxExtent; }
 	FORCEINLINE const FLinearColor& GetGridColour() const { return GridColour; }
+	void RegisterEditorWorld(const UWorld* EditorWorld);
 #endif
 
 	FORCEINLINE const TSubclassOf<UST_SparseGridManager> GetManagerClass() const { return ManagerClass; }
@@ -161,5 +163,8 @@ protected:
 	// Rendering
 	void Render_Box(FPrimitiveDrawInterface* PDI) const;
 	void Render_Grid(FPrimitiveDrawInterface* PDI, const float InAltitude) const;
+	void Render_Grid_Sprite(FPrimitiveDrawInterface* PDI, const float InAltitude) const;	
+private:
+	const UWorld* m_EditorWorld;
 #endif
 };

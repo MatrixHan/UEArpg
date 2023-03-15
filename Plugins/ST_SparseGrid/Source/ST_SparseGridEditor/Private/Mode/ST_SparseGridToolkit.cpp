@@ -179,9 +179,10 @@ void FST_SparseGridToolkit::OnCreateGrid(UClass* InGridDataClass)
 
 			GridData = NewObject<UST_SparseGridData>(ReferenceWorld->PersistentLevel, InGridDataClass, NAME_None, RF_Transactional);
 			checkf(GridData != nullptr, TEXT("Invalid Data"));
-
+			GridData->RegisterEditorWorld(ReferenceWorld);
 			PersistentLvl->AddAssetUserData(GridData);
 			PersistentLvl->MarkPackageDirty();
+			
 
 			// Refresh Toolkit
 			ModeToolsWidget->RefreshGridDetailsPanel();

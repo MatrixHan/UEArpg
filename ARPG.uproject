@@ -10,5 +10,11 @@
 			"LoadingPhase": "Default"
 		}
 	],
-	"Plugins": []
+	"Plugins": [
+		{
+			"Name": "ST_SparseGrid",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/13b592ea80814f2e841cb4efb9861434"
+		}
+	]
 }

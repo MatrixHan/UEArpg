@@ -11,9 +11,11 @@
 #include "Logging/MessageLog.h"
 #include "Misc/UObjectToken.h"
 #include "Misc/MapErrors.h"
+#include "../DrawUtil.h"
 #endif
 
 #define LOCTEXT_NAMESPACE "NSSparseGridData"
+#define ENABLE_DRAW_DEBUG
 
 ///////////////////////
 ///// Constructor /////
@@ -111,9 +113,13 @@ void UST_SparseGridData::Render(FPrimitiveDrawInterface* InPDI) const
 	{
 		Render_Box(InPDI);
 	}
-	else
+	else if(DrawAs == EST_SGVisualizerType::DDT_FlatGrid)
 	{
 		Render_Grid(InPDI, DrawAltitude);
+	}
+	else if (DrawAs == EST_SGVisualizerType::DDT_FlatGridSprite)
+	{
+		Render_Grid_Sprite(InPDI, DrawAltitude);
 	}
 }
 
@@ -166,6 +172,38 @@ void UST_SparseGridData::Render_Grid(FPrimitiveDrawInterface* PDI, const float I
 		PDI->DrawLine(LineStart, LineEnd, GridColour, SDPG_World, 1.f, 0.f, true);
 	}
 }
+
+
+void UST_SparseGridData::Render_Grid_Sprite(FPrimitiveDrawInterface* PDI, const float InAltitude) const
+{	
+	check(PDI);
+	DrawUtil::DrawFlush(m_EditorWorld, true, -1.0f, SDPG_World);
+	UTexture2D* VertexTexture = GEngine->DefaultBSPVertexTexture;	
+	const FST_GridRef2D GridMax = GridOrigin + (FST_GridRef2D(NumCellsX, NumCellsY) * CellSize);
+	const float halfSize = CellSize / 2.0f;
+	const FColor Color = FColor::Blue;
+	for (int32 RIdx = 0; RIdx < NumCellsY; RIdx++) 
+	{
+		for (int32 RIdy = 0; RIdy < NumCellsX; RIdy++)
+		{
+			const float Y = GridOrigin.Y + (RIdx * CellSize);
+			const float X = GridOrigin.X + (RIdy * CellSize);
+			const FVector CenterPosition = FVector(X+halfSize,Y+halfSize,InAltitude);
+			//PDI->DrawSprite(CenterPosition, CellSize, CellSize, VertexTexture->Resource, GridColour, SDPG_Foreground, 0.0f, 0.0f, 0.0f, 0.0f, SE_BLEND_MaskedDistanceField);
+			const FPlane plane(0, 0,1, CenterPosition.Z);
+			DrawUtil::DrawDebugSolidPlane(m_EditorWorld, plane, CenterPosition, CellSize, Color, true, -1.0f, SDPG_World);
+			//DrawDebugSolidPlane(GEngine->GetWorld(), plane,CenterPosition, CellSize, Color,false,-1.0f, SDPG_World);
+		}
+	}
+	
+	Render_Grid(PDI, InAltitude+1.0f);
+}
+
+void UST_SparseGridData::RegisterEditorWorld(const UWorld* EditorWorld)
+{
+	m_EditorWorld = EditorWorld;
+}
+
 #endif
 
 #undef LOCTEXT_NAMESPACE
